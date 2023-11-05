@@ -13,8 +13,9 @@ const router = Router();
 router.post("/signup", validation(createUserSchema), userController.signUp);
 router.post("/signin", validation(signInUserSchema), userController.signIn);
 
-router.get("/", verifyJWT, userController.getUser);
 router.get("/me", verifyJWT, userController.getUserById);
 router.patch("/", verifyJWT, userController.updateUser);
+
+router.get("/", verifyJWT, userController.getUser);
 
 export default router;

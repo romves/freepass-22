@@ -4,6 +4,8 @@ import userRoute from "./module/users/user-route";
 import refreshRoute from "./module/token/refresh-token-route";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import classRoute from "./module/classes/class-route";
+import { verifyJWT } from "./middleware/verifyJWT";
 
 //For env File
 dotenv.config();
@@ -21,6 +23,9 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/refresh", refreshRoute);
 app.use("/user", userRoute);
+
+app.use(verifyJWT);
+app.use("/admin", classRoute);
 
 app.listen(port, () => {
   console.log(`Server is Fire at http://localhost:${port}`);

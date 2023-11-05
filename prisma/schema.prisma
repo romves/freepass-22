@@ -16,30 +16,51 @@ enum Role {
 }
 
 model User {
-  nim           String           @id @unique @db.VarChar(15)
-  nama_lengkap  String           @db.VarChar(200)
-  password      String           @db.VarChar(255)
+  nim           String             @id @unique @db.VarChar(15)
+  nama_lengkap  String             @db.VarChar(200)
+  password      String             @db.VarChar(255)
   role          Role
-  refresh_token String?          @db.VarChar(255)
-  classes       UserClassTaken[]
+  refresh_token String?            @db.VarChar(255)
+  classes       ClassTakenByUser[]
 
   @@map("user")
 }
 
 model Class {
-  course_code String           @id @unique @db.VarChar(20)
-  name        String           @db.VarChar(100)
-  users       UserClassTaken[]
+  class_code String                @id @unique @db.VarChar(100)
+  users      ClassTakenByUser[]
+  course     ClassCourseRelation[]
 
   @@map("class")
 }
 
-model UserClassTaken {
-  userId     String
-  user       User     @relation(fields: [userId], references: [nim])
-  classId    String
-  class      Class    @relation(fields: [classId], references: [course_code])
+model Course {
+  course_id String                @id @unique @db.VarChar(20)
+  name      String                @db.VarChar(100)
+  class     ClassCourseRelation[]
+
+  @@map("course")
+}
+
+model ClassCourseRelation {
+  id Int @id @default(autoincrement())
+
+  class      Class  @relation(fields: [class_code], references: [class_code])
+  class_code String @db.VarChar(100)
+
+  course    Course @relation(fields: [course_id], references: [course_id])
+  course_id String @db.VarChar(20)
+
+  @@map("class_course")
+}
+
+model ClassTakenByUser {
+  taken_nim  String
+  user       User     @relation(fields: [taken_nim], references: [nim])
+  class_code String   @db.VarChar(100)
+  class      Class    @relation(fields: [class_code], references: [class_code])
   assignedAt DateTime @default(now())
 
-  @@id([userId, classId])
+  @@id([taken_nim, class_code])
+  @@map("class_taken_user")
 }
