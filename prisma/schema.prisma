@@ -16,28 +16,29 @@ enum Role {
 }
 
 model User {
-  nim String @id @unique @db.VarChar(15)
-  nama_lengkap String @db.VarChar(200)
-  password String @db.VarChar(255)
-  role Role
-  classes UserClassTaken[]
+  nim           String           @id @unique @db.VarChar(15)
+  nama_lengkap  String           @db.VarChar(200)
+  password      String           @db.VarChar(255)
+  role          Role
+  refresh_token String?          @db.VarChar(255)
+  classes       UserClassTaken[]
 
   @@map("user")
 }
 
 model Class {
-  course_code String @id @unique @db.VarChar(20)
-  name String @db.VarChar(100)
-  users UserClassTaken[]
+  course_code String           @id @unique @db.VarChar(20)
+  name        String           @db.VarChar(100)
+  users       UserClassTaken[]
 
   @@map("class")
 }
 
 model UserClassTaken {
-  userId String
-  user User @relation(fields: [userId], references: [nim])
-  classId String
-  class Class @relation(fields: [classId], references: [course_code])
+  userId     String
+  user       User     @relation(fields: [userId], references: [nim])
+  classId    String
+  class      Class    @relation(fields: [classId], references: [course_code])
   assignedAt DateTime @default(now())
 
   @@id([userId, classId])

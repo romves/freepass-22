@@ -7,7 +7,6 @@ export const validation =
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Parse
-      console.log(req.body)
       await schema.parseAsync({
         body: req.body,
         query: req.query,
@@ -30,3 +29,4 @@ export const validation =
       }
     }
   };
+
