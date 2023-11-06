@@ -37,6 +37,7 @@ model Class {
 model Course {
   course_id String                @id @unique @db.VarChar(20)
   name      String                @db.VarChar(100)
+  credit    Int
   class     ClassCourseRelation[]
 
   @@map("course")

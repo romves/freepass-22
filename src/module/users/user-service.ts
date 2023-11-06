@@ -1,7 +1,8 @@
-import prisma from "../../config/prisma";
-import { CustomError } from "../../error/custom-error";
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
+import prisma from "../../config/prisma";
+import { CustomError } from "../../error/custom-error";
+import { updateUserBodyType } from "./dtos/update-user.dto";
 
 const createUser = async (userData: {
   nim: string;
@@ -15,13 +16,6 @@ const createUser = async (userData: {
   if (existingUser) throw new CustomError("user already exist", 400);
 
   const hashedPass = await bcrypt.hash(userData.password, 10);
-
-  // const newUser = {
-  //   nama_lengkap: userData.nama_lengkap,
-  //   nim: userData.nim,
-  //   password: hashedPass,
-  //   role: "STUDENT",
-  // };
 
   return await prisma.user.create({
     data: {
@@ -58,6 +52,27 @@ const getUserById = async (nim: string) => {
   if (!user) throw new CustomError("user not found", 403);
 
   return user;
+};
+
+const applyClass = async (class_code: string, nim: string) => {
+  const class_1 = await prisma.class.findUnique({ where: { class_code } });
+
+  if (!class_1) throw new CustomError("class not found", 404);
+
+  const applied = await prisma.user.update({
+    where: { nim },
+    data: {
+      classes: {
+        create: {
+          class: {
+            connect: { class_code },
+          },
+        },
+      },
+    },
+  });
+
+  return applied;
 };
 
 const signIn = async (nim: string, password: string) => {
@@ -97,9 +112,27 @@ const signIn = async (nim: string, password: string) => {
   }
 };
 
+const updateUser = async (
+  nim: string,
+  { nama_lengkap, password }: updateUserBodyType
+) => {
+  const existingUser = await getUserById(nim);
+
+  if (!existingUser) throw new CustomError("user not found", 403)
+
+  return await prisma.user.update({
+    where: { nim },
+    data: {
+      nama_lengkap: nama_lengkap || existingUser.nama_lengkap,
+    },
+  });
+};
+
 export default {
   createUser,
   getUser,
   signIn,
-  getUserById
+  getUserById,
+  applyClass,
+  updateUser,
 };

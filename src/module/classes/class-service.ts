@@ -31,19 +31,35 @@ const createClass = async (classData: {
 };
 
 const getAllClasses = async () => {
-  const classes = await prisma.$queryRaw`
-
-      select c1.class_code, c2.course_id, c2.name from class c1 
-      join (
-        select c3.name, c4.class_code, c4.course_id from course c3 
-        join class_course c4 
-        on c3.course_id=c4.course_id
-      ) as c2 
-      on c1.class_code=c2.class_code
-      
-    `.catch((err) => {
-    throw new CustomError(err.message, 500);
-  });
+  const classes = await prisma.class
+    .findMany({
+      include: {
+        course: {
+          select: {
+            course: {
+              select: {
+                course_id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        users: {
+          select: {
+            user: {
+              select: {
+                nim: true,
+                nama_lengkap: true,
+              },
+            },
+            assignedAt: true,
+          },
+        },
+      },
+    })
+    .catch((err) => {
+      throw new CustomError(err.message, 500);
+    });
 
   if (!classes) throw new CustomError("user not found", 403);
 
@@ -51,21 +67,36 @@ const getAllClasses = async () => {
 };
 
 const getClassById = async (class_code: string) => {
-  const class_1 = await prisma.$queryRaw<ClassData[]>`
-
-  select c1.class_code, c2.course_id, c2.name from class c1 
-  join (
-    select c3.name, c4.class_code, c4.course_id from course c3 
-    join class_course c4 
-    on c3.course_id=c4.course_id
-  ) as c2 
-  on c1.class_code=c2.class_code
-  where c1.class_code = ${class_code}
-  limit 1
-
-`.catch((err) => {
-    throw new CustomError(err.message, 500);
-  });
+  const class_1 = await prisma.class
+    .findMany({
+      where: { class_code },
+      include: {
+        course: {
+          select: {
+            course: {
+              select: {
+                course_id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        users: {
+          select: {
+            user: {
+              select: {
+                nim: true,
+                nama_lengkap: true,
+              },
+            },
+            assignedAt: true,
+          },
+        },
+      },
+    })
+    .catch((err) => {
+      throw new CustomError(err.message, 500);
+    });
 
   if (!class_1) throw new CustomError("user not found", 403);
 
@@ -77,4 +108,3 @@ export default {
   getAllClasses,
   getClassById,
 };
-

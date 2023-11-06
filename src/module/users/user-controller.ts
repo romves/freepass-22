@@ -1,7 +1,8 @@
 import { RequestHandler } from "express";
-import { createUserSchemaType } from "./dtos/create-user-dto";
-import userService from "./user-service";
 import { CustomRequest } from "../../middleware/verifyJWT";
+import { createUserSchemaType } from "./dtos/create-user-dto";
+import { updateUserSchemaType } from "./dtos/update-user.dto";
+import userService from "./user-service";
 
 const signIn: RequestHandler = async (req, res) => {
   try {
@@ -52,18 +53,41 @@ const getUserById: RequestHandler = async (req: CustomRequest, res) => {
 
     const user = await userService.getUserById(nim);
 
-    return res.json({data: user});
+    return res.json({ data: user });
   } catch (error: any) {
     return res.status(error.statusCode).json({ message: error.message });
   }
 };
 
-const updateUser: RequestHandler = async (req, res) => {};
+const updateUser: RequestHandler = async (req: CustomRequest, res) => {
+  try {
+    const { body: updateData } = req as updateUserSchemaType;
+    const nim = req.nim;
+
+    const updatedUser = await userService.updateUser(nim, updateData);
+
+    return res.json({ message: "update success" });
+  } catch (error) {}
+};
+
+const applyClass: RequestHandler = async (req: CustomRequest, res) => {
+  try {
+    const nim = req.nim;
+    const { class_code } = req.body;
+
+    const appliedClass = await userService.applyClass(class_code, nim);
+
+    return res.json({ data: appliedClass });
+  } catch (error: any) {
+    return res.status(error.statusCode).json({ message: error.message });
+  }
+};
 
 export default {
   getUser,
   signUp,
   signIn,
   updateUser,
-  getUserById
+  getUserById,
+  applyClass,
 };

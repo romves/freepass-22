@@ -25,7 +25,7 @@ app.use("/refresh", refreshRoute);
 app.use("/user", userRoute);
 
 app.use(verifyJWT);
-app.use("/admin", classRoute);
+app.use("/class", classRoute);
 
 app.listen(port, () => {
   console.log(`Server is Fire at http://localhost:${port}`);
