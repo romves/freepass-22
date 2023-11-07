@@ -75,6 +75,40 @@ const applyClass = async (class_code: string, nim: string) => {
   return applied;
 };
 
+const cancelClass = async (class_code: string, nim: string) => {
+  const class_1 = await prisma.class.findUnique({ where: { class_code } });
+
+  if (!class_1) throw new CustomError("class not found", 404);
+
+  const takenClass = await prisma.classTakenByUser.findUnique({
+    where: {
+      taken_nim_class_code: {
+        taken_nim: nim,
+        class_code: class_1.class_code,
+      },
+    },
+  });
+
+  if (!takenClass) {
+    throw new CustomError("Record to delete does not exist", 404);
+  }
+
+  const cancelled = await prisma.classTakenByUser
+    .delete({
+      where: {
+        taken_nim_class_code: {
+          taken_nim: nim,
+          class_code: class_code,
+        },
+      },
+    })
+    .catch((err) => {
+      throw new CustomError(err.message, 500);
+    });
+
+  return cancelled;
+};
+
 const signIn = async (nim: string, password: string) => {
   const foundUser = await prisma.user.findUnique({ where: { nim } });
 
@@ -118,7 +152,7 @@ const updateUser = async (
 ) => {
   const existingUser = await getUserById(nim);
 
-  if (!existingUser) throw new CustomError("user not found", 403)
+  if (!existingUser) throw new CustomError("user not found", 403);
 
   return await prisma.user.update({
     where: { nim },
@@ -135,4 +169,5 @@ export default {
   getUserById,
   applyClass,
   updateUser,
+  cancelClass,
 };

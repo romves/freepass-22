@@ -70,6 +70,19 @@ const updateUser: RequestHandler = async (req: CustomRequest, res) => {
   } catch (error) {}
 };
 
+const cancelClass: RequestHandler = async (req: CustomRequest, res) => {
+  try {
+    const nim = req.nim;
+    const { class_code } = req.body;
+
+    const cancelledClass = await userService.cancelClass(class_code, nim);
+
+    return res.json({ data: cancelledClass, message: "cancel class success" });
+  } catch (error: any) {
+    return res.status(error.statusCode).json({ message: error.message });
+  }
+};
+
 const applyClass: RequestHandler = async (req: CustomRequest, res) => {
   try {
     const nim = req.nim;
@@ -90,4 +103,5 @@ export default {
   updateUser,
   getUserById,
   applyClass,
+  cancelClass,
 };

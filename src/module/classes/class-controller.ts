@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import { CustomRequest } from "../../middleware/verifyJWT";
 import classService from "./class-service";
 import { createClassSchemaType } from "./dtos/create-class-dto";
+import { updateClassBodyType } from "./dtos/update-class-dto";
 
 const createClass: RequestHandler = async (req, res) => {
   try {
@@ -20,9 +21,9 @@ const createClass: RequestHandler = async (req, res) => {
 
 const getAllClasses: RequestHandler = async (req, res) => {
   try {
-    const user = await classService.getAllClasses();
+    const classes = await classService.getAllClasses();
 
-    return res.json({ data: user });
+    return res.json({ data: classes });
   } catch (error: any) {
     console.log(error);
     return res.status(error.statusCode).json({ message: error.message });
@@ -42,10 +43,38 @@ const getClassById: RequestHandler = async (req: CustomRequest, res) => {
   }
 };
 
-const updateUser: RequestHandler = async (req, res) => {};
+const deleteClass: RequestHandler = async (req, res) => {
+  try {
+    const { class_code } = req.body;
+
+    const deletedClass = await classService.deleteClass(class_code);
+
+    return res.json({ data: deletedClass, message: "delete class success" });
+  } catch (error: any) {
+    return res.status(error.statusCode).json({ message: error.message });
+  }
+};
+
+const updateClass: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    console.log(id)
+
+    const updateData = req.body as updateClassBodyType;
+
+    const updatedClass = await classService.updateClass(id, updateData);
+
+    return res.json({ data: updatedClass, message: "update class success" });
+  } catch (error: any) {
+    return res.status(error.statusCode).json({ message: error.message });
+  }
+};
 
 export default {
   getAllClasses,
   getClassById,
   createClass,
+  deleteClass,
+  updateClass,
 };
